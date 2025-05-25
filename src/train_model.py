@@ -13,7 +13,7 @@ from sklearn.linear_model import Ridge
 from xgboost import XGBRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 
-basePath = r"C:\Users\Rabee Abla\Documents\GitHub\AIExam\Data"
+basePath = r"C:\Users\ermin\Documents\GitHub\AIExam\Data"
 filePath = os.path.join(basePath, "DKHousingPricesSample100k.csv")
 
 homes = pd.read_csv(filePath)
