@@ -14,6 +14,7 @@ from xgboost import XGBRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 
 basePath = r"C:\Users\ermin\Documents\GitHub\AIExam\Data"
+#C:\Users\Kevin\OneDrive - Zealand Sjællands Erhvervsakademi\Dokumenter\GitHub\AIExam\Data
 filePath = os.path.join(basePath, "DKHousingPricesSample100k.csv")
 
 homes = pd.read_csv(filePath)

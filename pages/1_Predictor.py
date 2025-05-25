@@ -4,8 +4,6 @@ import numpy as np
 import joblib
 import os
 import requests
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 from rag_utils import load_rag_documents, retrieve_relevant_docs
 
 MODEL_PATH = "src/house_price_model.pkl"
@@ -23,34 +21,18 @@ def load_model():
     return model, categories
 
 model, categories_seen = load_model()
+documents = load_rag_documents()
 
-def explain_prediction_with_rag(prompt, documents, model_name="llama3", top_n=3):
-    texts = [doc["text"] if isinstance(doc, dict) else doc for doc in documents]
-    vectorizer = TfidfVectorizer().fit(texts + [prompt])
-    doc_vectors = vectorizer.transform(texts)
-    query_vector = vectorizer.transform([prompt])
-    similarities = cosine_similarity(query_vector, doc_vectors).flatten()
-    top_indices = similarities.argsort()[::-1][:top_n]
-    context = "\n\n".join([texts[i] for i in top_indices])
-
-    full_prompt = (
-        f"Based on the following information:\n{context}\n\n"
-        f"Explain the reasoning behind this house price prediction:\n{prompt}"
-    ) if context else prompt
-
-    response = requests.post(
-        "http://localhost:11434/api/generate",
-        json={
-            "model": model_name,
-            "prompt": full_prompt,
-            "stream": False
-        }
+def house_summary(row):
+    summary = (
+        f"Quarter: {row['quarter']}, House Type: {row['house_type']}, Sales Type: {row['sales_type']}, "
+        f"Year Built: {row['year_build']}, Rooms: {row['no_rooms']}, Area: {row['area']}, Region: {row['region']}, "
+        f"Square Meters: {row['sqm']}, Zip Code: {row['zip_code']}, Interest Rate: {row['nom_interest_rate%']}%, "
+        f"Inflation: {row['dk_ann_infl_rate%']}%, Mortgage Bond Yield: {row['yield_on_mortgage_credit_bonds%']}%, "
+        f"Price per m2 (econ): {row['price_per_m2_econ']}, Quarterly Change: {row['quarterly_change%']*100:.2f}%, "
+        f"Yearly Change: {row['yearly_change%']*100:.2f}%"
     )
-    if response.status_code == 200:
-        result = response.json()
-        return result.get("response", "No explanation returned.")
-    else:
-        return f"Error from Ollama API: {response.status_code}"
+    return summary
 
 with st.form("prediction_form"):
     st.header("Enter House Details")
@@ -62,8 +44,6 @@ with st.form("prediction_form"):
     region = st.selectbox("Region", options=categories_seen.get("region", ["Zealand"]))
 
     year_build = st.number_input("Year Built", min_value=1800, max_value=2025, value=2005)
-    house_age = 2024 - year_build
-
     prediction_year = st.number_input("Prediction Year", min_value=1990, max_value=2030, value=2024)
 
     col1, col2, col3 = st.columns(3)
@@ -72,7 +52,7 @@ with st.form("prediction_form"):
         sqm = st.number_input("Square Meters", min_value=10.0, max_value=500.0, value=100.0)
     with col2:
         zip_code = st.number_input("Zip Code", min_value=1000, max_value=9990, value=2100)
-        price_per_m2 = st.number_input("Economic Price per m²", value=30000)
+        price_per_m2 = st.number_input("Economic Price per mÂ²", value=30000)
     with col3:
         interest_rate = st.number_input("Nominal Interest Rate (%)", value=3.1)
         inflation = st.number_input("Annual Inflation Rate (%)", value=2.0)
@@ -91,6 +71,8 @@ with st.form("prediction_form"):
 
     month = st.number_input("Month", value=10, min_value=1, max_value=12)
     quarter_from_date = st.number_input("Quarter From Date", value=4)
+
+    use_rag = st.checkbox("Use RAG to explain prediction", value=True)
 
     submitted = st.form_submit_button("Predict Price")
 
@@ -141,15 +123,37 @@ if submitted and model:
     st.subheader("Entered House Information:")
     st.dataframe(new_house)
 
-    if st.button("Explain Prediction"):
-        explanation_prompt = (
-            f"House details: {new_house.to_dict(orient='records')[0]}\n"
-            f"Predicted price (log10): {log_price[0]:.6f}"
+    if use_rag:
+        summary_text = house_summary(new_house.iloc[0])
+        top_docs = retrieve_relevant_docs(summary_text, documents)
+        rag_context = "\n\n".join([doc["text"] if isinstance(doc, dict) else doc for doc in top_docs])
+    else:
+        rag_context = ""
+
+    full_prompt = (
+        f"Explain the predicted house price based on the following house details:\n{summary_text}\n\n"
+        f"Use this market context:\n{rag_context}\n"
+        "Provide a clear and concise explanation suitable for a home buyer."
+    )
+
+    try:
+        response = requests.post(
+            "http://localhost:11434/api/generate",
+            json={
+                "model": "llama3",  # or use a selected model variable if you want
+                "prompt": full_prompt,
+                "stream": False
+            }
         )
-        rag_docs = load_rag_documents()
-        explanation = explain_prediction_with_rag(explanation_prompt, rag_docs, "llama3")
-        st.subheader("Prediction Explanation:")
-        st.write(explanation)
+        if response.status_code == 200:
+            result = response.json()
+            explanation = result.get("response", "").strip()
+            st.markdown("### AI Explanation:")
+            st.write(explanation)
+        else:
+            st.error(f"Error from Ollama: {response.status_code}")
+    except Exception as e:
+        st.error(f"Could not connect to Ollama: {e}")
 
 if st.button("Retrain Model"):
     st.info("To retrain, run: `python src/train_model.py` from your terminal.")

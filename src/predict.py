@@ -4,8 +4,8 @@ import joblib
 import os
 import sys
 
-MODEL_PATH = r"C:\Users\Rabee Abla\Documents\GitHub\AIExam\src\house_price_model.pkl"
-CATEGORIES_PATH = r"C:\Users\Rabee Abla\Documents\GitHub\AIExam\src\categories_seen.pkl"
+MODEL_PATH = r"C:\Users\ermin\Documents\GitHub\AIExam\src\house_price_model.pkl"
+CATEGORIES_PATH = r"C:\Users\ermin\Documents\GitHub\AIExam\src\categories_seen.pkl"
 
 if not os.path.exists(MODEL_PATH):
     print(f" Model file not found at: {MODEL_PATH}")
