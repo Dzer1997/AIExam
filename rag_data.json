@@ -1,0 +1,9 @@
+[
+  "Cluster 0: Newer homes, moderately large, well-balanced with average 1959 year built, 4.4 rooms, 131.6 sqm, and high price per m2.",
+  "Cluster 1: Largest homes on average, 4.9 rooms, built around 1950, with price per m2 significantly lower than others.",
+  "Cluster 2: Smaller homes, more compact and efficient, with 3.9 rooms, built around 1957, and the highest price per m2.",
+  "Cluster 3: Older homes with slightly above-average size and rooms, built around 1946, with relatively low price per m2.",
+  "PC1 (Principal Component 1) is mainly influenced by changes since 1992, year, and price per m2 positively, while yield on mortgage credit bonds and nominal interest rate negatively affect it.",
+  "PC2 reflects geographic and regional variation, influenced positively by cluster, Zealand region, Capital area, and negatively by Jutland region and zip code.",
+  "The Stacking Regressor with Ridge as the final estimator achieved an RMSE of 988,454.82 and an R² score of 0.6309, indicating decent predictive performance on the housing price data."
+]
