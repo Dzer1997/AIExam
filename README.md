@@ -1,6 +1,6 @@
 ## Part 1: Setting up Ollama and the local LLM
 
-### Step 1: Install Ollama
+### Step 1: Install https://ollama.com/ 
 
 ### Step 2: Be sure the Ollama is running on your computer
 ![pic1](https://github.com/user-attachments/assets/d7440262-394e-40b5-991b-d29130069520)
