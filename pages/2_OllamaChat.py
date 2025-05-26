@@ -48,13 +48,13 @@ selected_model = st.selectbox("Select an Ollama model:", options=available_model
 use_rag = st.checkbox("📚 Use Retrieval-Augmented Generation (RAG)", value=True)
 
 prompt_modes = list_prompt_modes()
-selected_mode = st.selectbox("🧠 Select a Prompt Template:", options=prompt_modes)
+default_index = prompt_modes.index("Custom") if "Custom" in prompt_modes else 0
+selected_mode = st.selectbox("🧠 Select a Prompt Template:", options=prompt_modes, index=default_index)
 if "prompt_text" not in st.session_state:
     st.session_state.prompt_text = ""
 
 if "last_mode" not in st.session_state:
     st.session_state.last_mode = ""
-
 
 if selected_mode != st.session_state.last_mode:
     st.session_state.last_mode = selected_mode
