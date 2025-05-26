@@ -42,6 +42,7 @@ source ./LocalAI/Scripts/activate
 ```
 
 You should see something like this:
+
 ![pic4](https://github.com/user-attachments/assets/023d9ac2-b907-4ccc-8dfa-4cddc003f2c6)
 
 Now use the following command:
