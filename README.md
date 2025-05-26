@@ -56,6 +56,7 @@ streamlit run app.py or streamlit run app.py --server.address 127.0.0.1
 ```
 
 Now the following window should open up
+
 ![pic5](https://github.com/user-attachments/assets/abc8a067-6ef1-48fb-b0fb-f0f67aa99dfb)
 
 You’re finished! Feel free to explore the application by predicting the housing prices or chat with your local LLM.
